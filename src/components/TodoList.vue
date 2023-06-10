@@ -5,13 +5,15 @@ type Todo = {
   name: string
   isCompleted: boolean
 }
-const todos = ref<Todo[]>([])
+const myStorage = localStorage
+const todos = ref<Todo[]>(JSON.parse(myStorage.getItem('todolist') ?? '[]'))
 
 const newTodoName = ref('')
 
 const addTodo = () => {
   if (!newTodoName.value) return
   todos.value.push({ name: newTodoName.value, isCompleted: false })
+  myStorage.setItem('todolist', JSON.stringify(todos.value))
 }
 </script>
 
@@ -20,14 +22,32 @@ const addTodo = () => {
   <ul>
     <li v-for="todo in todos.filter((v) => !v.isCompleted)" :key="todo.name">
       <div>{{ todo.name }}</div>
-      <button @click="todo.isCompleted = true">完了</button>
+      <button
+        @click="
+          () => {
+            todo.isCompleted = true
+            myStorage.setItem('todolist', JSON.stringify(todos))
+          }
+        "
+      >
+        完了
+      </button>
     </li>
   </ul>
   <div>完了済みリスト</div>
   <ul>
     <li v-for="todo in todos.filter((v) => v.isCompleted)" :key="todo.name">
       <div>{{ todo.name }}</div>
-      <button @click="todo.isCompleted = false">未完に戻す</button>
+      <button
+        @click="
+          () => {
+            todo.isCompleted = false
+            myStorage.setItem('todolist', JSON.stringify(todos))
+          }
+        "
+      >
+        未完に戻す
+      </button>
     </li>
   </ul>
   <div>
